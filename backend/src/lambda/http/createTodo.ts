@@ -3,6 +3,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import * as AWS  from 'aws-sdk'
 import * as uuid from 'uuid'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('http')
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const todoTable = process.env.TODO_TABLE
@@ -24,9 +27,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     TableName: todoTable,
     Item: newTodo
   }).promise()
-    .catch(error) {
-      logger.error(`Todo item not created: ${error}`)
-    }
 
   return {
     statusCode: 201,

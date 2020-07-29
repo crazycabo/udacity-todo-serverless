@@ -62,20 +62,21 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   // You can read more about how to do this here: https://auth0.com/blog/navigating-rs256-and-jwks/
   const signingKeys = jsonWebKeys.filter(key => key.use === 'sig'
       && key.kty === 'RSA'
-      && key.kid
-      && key.x5c && key.x5c.length
+      && key.kid === jwt.header.kid
+      && key.x5c
+      && key.x5c.length
     ).map(key => {
-      return { kid: key.kid, nbf: key.nbf, publicKey: buildCertificate(key.x5c[0]) };
+      return { kid: key.kid, nbf: key.nbf, publicKey: buildCertificate(key.x5c[0]) }
     });
 
-  const signingKey = signingKeys.find(key => key.kid === kid);
+  const signingKey = signingKeys.find(key => key.kid === jwt.header.kid)
 
   if(!signingKey) {
     logger.error("No valid signing keys found'")
     throw new Error('No valid signing keys found')
   }
 
-  return verify(token, signingKey.publicKey, { algorithms: [ 'RS256' ] }) as JwtToken
+  return verify(token, signingKey.publicKey, { algorithms: [ 'RS256' ] }) as JwtPayload
 }
 
 function getToken(authHeader: string): string {
@@ -94,7 +95,7 @@ function getToken(authHeader: string): string {
 
 function buildCertificate(keyData) {
 
-  key = keyData.match(/.{1,64}/g).join('\n');
+  const key = keyData.match(/.{1,64}/g).join('\n')
 
-  return `-----BEGIN CERTIFICATE-----\n${key}\n-----END CERTIFICATE-----\n`;
+  return `-----BEGIN CERTIFICATE-----\n${key}\n-----END CERTIFICATE-----\n`
 }
