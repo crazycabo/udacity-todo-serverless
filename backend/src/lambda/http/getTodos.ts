@@ -2,7 +2,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import * as AWS  from 'aws-sdk'
 import { createLogger } from '../../utils/logger'
-import { parseUserId } from '../../auth/utils'
+import { getUserId } from '../../auth/utils'
 
 const logger = createLogger('http')
 
@@ -14,11 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   logger.info('Process event: ', event)
 
-  const authorization = event.headers.Authorization
-  const split = authorization.split(' ')
-  const jwtToken = split[1]
-
-  const userId = await parseUserId(jwtToken)
+  const userId = getUserId(event.headers.Authorization)
 
   const result = await docClient.query({
     TableName: todoTable,
