@@ -29,7 +29,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
   }).promise()
 
-  const todoItems = result.Items
+  const items = result.Items
 
   return {
     statusCode: 200,
@@ -38,7 +38,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       'Access-Control-Allow-Credentials': true
     },
     body: JSON.stringify({
-      todoItems
+      items
     })
   }
 }
