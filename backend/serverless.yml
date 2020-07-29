@@ -11,7 +11,7 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   environment:
-    TODO_TABLE: ud-todo-todos-${self:provider.stage}
+    TODO_TABLE: ud-todo-items-${self:provider.stage}
     ATTACHMENTS_BUCKET: ud-todo-attachments-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     USER_ID_INDEX: UserIdIndex
@@ -88,12 +88,10 @@ resources:
             AttributeType: S
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: createdAt
-            AttributeType: S
         KeySchema:
           - AttributeName: todoId
             KeyType: HASH
-          - AttributeName: createdAt
+          - AttributeName: userId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODO_TABLE}
