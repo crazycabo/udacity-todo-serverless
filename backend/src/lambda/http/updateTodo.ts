@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import * as AWS  from 'aws-sdk'
 import { createLogger } from '../../utils/logger'
-import { getUserId } from '../../auth/utils'
+import { getUserId } from '../utils'
 
 const logger = createLogger('http')
 
@@ -15,14 +15,14 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.info('Process event: ', event)
 
   const todoId = event.pathParameters.todoId
-  const userId = await getUserId(event.headers.Authorization)
+  const userId = await getUserId(event)
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
 
   const todo = {
     TableName: todoTable,
     Key: {
-      'todoId': todoId,
-      'userId': userId
+      todoId,
+      userId
     },
     ExpressionAttributeNames: { "#N": "name" },
     UpdateExpression: 'set #N = :itemName, dueDate = :dueDate, done = :done',
