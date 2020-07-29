@@ -120,3 +120,15 @@ resources:
                 - DELETE
                 - HEAD
               MaxAge: 3000
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: AttachmentsBucket
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENTS_BUCKET}/*'
+        Bucket: !Ref AttachmentsBucket
