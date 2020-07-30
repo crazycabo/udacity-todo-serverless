@@ -1,4 +1,5 @@
 import * as AWS  from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
@@ -9,7 +10,8 @@ import * as uuid from 'uuid'
 
 const logger = createLogger('dynamoDb')
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const XAWS = AWSXRay.captureAWS(AWS)
+const docClient = new XAWS.DynamoDB.DocumentClient()
 const todoTable = process.env.TODO_TABLE
 const userIndex = process.env.USER_ID_INDEX
 

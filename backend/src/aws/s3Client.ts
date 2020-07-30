@@ -1,9 +1,11 @@
 import * as AWS  from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { createLogger } from '../utils/logger'
 import { getUserId } from '../lambda/utils'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
+const XAWS = AWSXRay.captureAWS(AWS)
+const docClient = new XAWS.DynamoDB.DocumentClient()
 const s3 = new AWS.S3({
   signatureVersion: 'v4'
 })
