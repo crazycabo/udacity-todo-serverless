@@ -17,15 +17,19 @@ provider:
     ATTACHMENTS_BUCKET: ud-todo-attachments-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     USER_ID_INDEX: UserIdIndex
+  tracing:
+    lambda: true
+    apiGateway: true
+
 custom:
   documentation:
     models:
       - name: CreateTodoRequest
         contentType: application/json
-        schema: ${file(models/create-todo-request.json)}
+        schema: ${file(src/models/validation/create-todo-request.json)}
       - name: UpdateTodoRequest
         contentType: application/json
-        schema: ${file(models/update-todo-request.json)}
+        schema: ${file(src/models/validation/update-todo-request.json)}
 
 functions:
   Auth:
@@ -175,6 +179,12 @@ resources:
                   Action:
                     - dynamodb:Query
                   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}/index/${self:provider.environment.USER_ID_INDEX}
+                - Effect: Allow
+                  Action:
+                    - "xray:PutTraceSegments"
+                    - "xray:PutTelemetryRecords"
+                  Resource:
+                    - "*"
     CreateUpdateTodoRole:
       Type: AWS::IAM::Role
       Properties:
@@ -197,6 +207,12 @@ resources:
                     - dynamodb:PutItem
                     - dynamodb:UpdateItem
                   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
+                - Effect: Allow
+                  Action:
+                    - "xray:PutTraceSegments"
+                    - "xray:PutTelemetryRecords"
+                  Resource:
+                    - "*"
     DeleteTodoRole:
       Type: AWS::IAM::Role
       Properties:
@@ -218,6 +234,12 @@ resources:
                   Action:
                     - dynamodb:DeleteItem
                   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
+                - Effect: Allow
+                  Action:
+                    - "xray:PutTraceSegments"
+                    - "xray:PutTelemetryRecords"
+                  Resource:
+                    - "*"
     AttachmentsTodoRole:
       Type: AWS::IAM::Role
       Properties:
@@ -244,3 +266,9 @@ resources:
                     - s3:PutObject
                     - s3:GetObject
                   Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENTS_BUCKET}/*
+                - Effect: Allow
+                  Action:
+                    - "xray:PutTraceSegments"
+                    - "xray:PutTelemetryRecords"
+                  Resource:
+                    - "*"
