@@ -1,15 +1,11 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
-import * as AWS  from 'aws-sdk'
-import * as uuid from 'uuid'
+import { createTodo } from '../../aws/dynamoDbClient'
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
 
 const logger = createLogger('http')
-
-const docClient = new AWS.DynamoDB.DocumentClient()
-const todoTable = process.env.TODO_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
@@ -18,29 +14,30 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const parsedEventBody: CreateTodoRequest = JSON.parse(event.body)
   const userId = getUserId(event)
 
-  const item = {
-    todoId: uuid.v4(),
-    userId: userId,
-    createdAt: new Date().toISOString(),
-    done: false,
-    ...parsedEventBody
-  }
+  try {
+    const item = await createTodo(userId, parsedEventBody)
 
-  logger.info(`Create todo from event: ${item}`)
+    return {
+      statusCode: 201,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: JSON.stringify({
+        item
+      })
+    }
+  } catch(error) {
 
-  await docClient.put({
-    TableName: todoTable,
-    Item: item
-  }).promise()
-
-  return {
-    statusCode: 201,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
-    },
-    body: JSON.stringify({
-      item
-    })
+    return {
+      statusCode: 404,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: JSON.stringify({
+        'message': `Error processing request: ${error}`
+      })
+    }
   }
 }
