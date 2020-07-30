@@ -1,40 +1,36 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
-import * as AWS  from 'aws-sdk'
+import { getTodos } from '../../aws/dynamoDbClient'
 import { createLogger } from '../../utils/logger'
-import { getUserId } from '../utils'
 
 const logger = createLogger('http')
-
-const docClient = new AWS.DynamoDB.DocumentClient()
-const todoTable = process.env.TODO_TABLE
-const userIndex = process.env.USER_ID_INDEX
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
   logger.info('Process event: ', event)
 
-  const userId = getUserId(event)
+  try {
+    const items = await getTodos(event)
+    const body = (items.length > 0) ? JSON.stringify({ items }) : JSON.stringify({})
 
-  const result = await docClient.query({
-    TableName: todoTable,
-    IndexName: userIndex,
-    KeyConditionExpression: 'userId = :userId',
-    ExpressionAttributeValues: {
-      ':userId': userId
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: body
     }
-  }).promise()
-
-  const items = result.Items
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
-    },
-    body: JSON.stringify({
-      items
-    })
+  } catch (error) {
+    return {
+      statusCode: 404,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: JSON.stringify({
+        'message': `Error processing request: ${error}`
+      })
+    }
   }
 }

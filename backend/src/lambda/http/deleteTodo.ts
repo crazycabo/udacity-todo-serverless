@@ -2,7 +2,6 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { deleteTodo } from '../../aws/dynamoDbClient'
 import { createLogger } from '../../utils/logger'
-import { getUserId } from '../utils'
 
 const logger = createLogger('http')
 
@@ -10,11 +9,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   logger.info('Process event: ', event)
 
-  const userId = getUserId(event)
-  const todoId = event.pathParameters.todoId
-
   try {
-    await deleteTodo(userId, todoId)
+    const todoId = await deleteTodo(event)
 
     return {
       statusCode: 200,
@@ -27,7 +23,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       })
     }
   } catch(error) {
-
     return {
       statusCode: 404,
       headers: {
