@@ -7,7 +7,7 @@ import { createLogger } from '../utils/logger'
 import { getUserId } from '../lambda/utils'
 import * as uuid from 'uuid'
 
-const logger = createLogger('aws')
+const logger = createLogger('dynamoDb')
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 const todoTable = process.env.TODO_TABLE
