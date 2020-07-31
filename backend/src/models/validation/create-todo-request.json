@@ -3,35 +3,16 @@
   "title": "Create Todo",
   "type": "object",
   "properties": {
-    "userId": {
-      "type": "string"
-    },
-    "todoId": {
-      "type": "string"
-    },
-    "createdAt": {
-      "type": "string"
-    },
     "name": {
       "type": "string"
     },
     "dueDate": {
       "type": "string"
-    },
-    "done": {
-      "type": "boolean"
-    },
-    "attachmentUrl": {
-      "type": "string"
     }
   },
   "required": [
-    "userId",
-    "todoId",
-    "createdAt",
     "name",
-    "dueDate",
-    "done"
+    "dueDate"
   ],
   "additionalProperties": false
 }

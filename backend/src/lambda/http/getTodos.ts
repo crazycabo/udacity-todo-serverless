@@ -11,7 +11,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   try {
     const items = await getTodos(event)
-    const body = (items.length > 0) ? JSON.stringify({ items }) : JSON.stringify({})
 
     return {
       statusCode: 200,
@@ -19,7 +18,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Credentials': true
       },
-      body: body
+      body: JSON.stringify({
+        items
+      })
     }
   } catch (error) {
     return {

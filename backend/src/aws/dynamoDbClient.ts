@@ -42,8 +42,8 @@ export async function createTodo(event: APIGatewayProxyEvent): Promise<TodoItem>
     todoId: uuid.v4(),
     userId: userId,
     createdAt: new Date().toISOString(),
+    ...parsedEventBody,
     done: false,
-    ...parsedEventBody
   }
 
   logger.info(`Create todo from event: ${item}`)
@@ -59,7 +59,7 @@ export async function createTodo(event: APIGatewayProxyEvent): Promise<TodoItem>
 export async function updateTodo(event: APIGatewayProxyEvent) {
 
   const todoId = event.pathParameters.todoId
-  const userId = await getUserId(event)
+  const userId = getUserId(event)
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
 
   const todo = {
